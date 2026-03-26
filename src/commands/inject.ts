@@ -27,10 +27,24 @@ export async function inject(options: InjectOptions): Promise<void> {
     }
 
     const targetDir = targetPath || projectPath;
-    const entryExists = fs.existsSync(path.join(targetDir, 'src/entry.js')) || fs.existsSync(path.join(targetDir, 'src/entry.ts'));
+    const entryFilePath = path.join(targetDir, 'src/entry.ts');
+    const entryJsFilePath = path.join(targetDir, 'src/entry.js');
+
+    let entryExists = false;
+    if (fs.existsSync(entryFilePath)) {
+      const entryContent = fs.readFileSync(entryFilePath, 'utf8');
+      if (entryContent.includes('openclaw-cn-termux')) {
+        entryExists = true;
+      }
+    } else if (fs.existsSync(entryJsFilePath)) {
+      const entryContent = fs.readFileSync(entryJsFilePath, 'utf8');
+      if (entryContent.includes('openclaw-cn-termux')) {
+        entryExists = true;
+      }
+    }
 
     if (entryExists) {
-      console.log('Project appears to already be processed (src/entry.ts/js exists). Skipping injection.');
+      console.log('Project appears to already be processed (src/entry contains openclaw-cn-termux). Skipping injection.');
       return;
     }
 
