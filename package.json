@@ -1,0 +1,46 @@
+{
+  "name": "@openclaw-cn-termux/cli",
+  "version": "1.0.0",
+  "description": "A CLI tool for migrating OPENCLAW projects to openclaw-cn-termux",
+  "main": "dist/index.js",
+  "bin": {
+    "termux-cli": "bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byteuser1977/openclaw-termux-cli.git"
+  },
+  "keywords": [
+    "openclaw",
+    "termux",
+    "cli",
+    "migration"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/byteuser1977/openclaw-termux-cli/issues"
+  },
+  "homepage": "https://github.com/byteuser1977/openclaw-termux-cli#readme",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/glob": "^8.1.0",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "commander": "^10.0.0",
+    "fs-extra": "^11.0.0",
+    "glob": "^10.0.0",
+    "inquirer": "^9.0.0"
+  }
+}
