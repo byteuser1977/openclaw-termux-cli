@@ -212,7 +212,7 @@ import type { RuntimeEnv } from "../runtime.js";`
   'src/infra/clawdbot-root.ts': {
     description: 'Clawdbot 根路径调整',
     oldSegment: `const CORE_PACKAGE_NAMES = new Set(["openclaw-cn"]);`,
-    newSegment: `const CORE_PACKAGE_NAMES = new Set(["openclaw-cn-termuxcn-termux"]);`
+    newSegment: `const CORE_PACKAGE_NAMES = new Set(["openclaw--cn-termux"]);`
   },
 
   'src/infra/path-env.ts': {
@@ -236,6 +236,12 @@ import type { RuntimeEnv } from "../runtime.js";`
   'extensions/discord/src/runtime.ts': {
     description: 'Discord 运行时调整',
     oldSegment: `import type { PluginRuntime } from "openclaw-cn/plugin-sdk";`,
-    newSegment: `import type { PluginRuntime } from "openclaw-cn-cn-termux/plugin-sdk";`
+    newSegment: `import type { PluginRuntime } from "openclaw-termux/plugin-sdk";`
+  },
+
+  'extensions/discord/src/channel.ts': {
+    description: 'Discord channel 调整',
+    oldSegment: `from "openclaw-cn/plugin-sdk"`,
+    newSegment: `from "openclaw-termux/plugin-sdk"`
   }
 };
