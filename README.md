@@ -1,5 +1,7 @@
 # openclaw-termux-cli
 
+版本：0.0.1
+
 一个用于将 OPENCLAW、OPENCLAW-CN 及其他 OPENCLAW 类项目迁移到 openclaw-cn-termux 项目的工具包。
 
 ## 功能特点
@@ -18,14 +20,25 @@ npm install -g @openclaw-cn-termux/cli
 
 ### 1. inject 命令
 
-用于向 OPENCLAW 项目注入 Termux 兼容性代码。
+用于向 OPENCLAW 项目注入 Termux 兼容性代码。支持两种模式：
+
+#### 代码注入模式 (--code)
 
 ```bash
-termux-cli inject --project <项目路径> [--target <目标路径>] [--verbose]
+termux-cli inject --code <项目路径> [--target <目标路径>] [--verbose]
 ```
 
-- `--project <项目路径>`：必需，指定 OPENCLAW 项目的路径
+- `--code <项目路径>`：必需，指定 OPENCLAW 项目源码目录路径
 - `--target <目标路径>`：可选，指定修改后的项目保存路径，默认为项目路径
+- `--verbose`：可选，启用详细输出
+
+#### 安装包注入模式 (--package)
+
+```bash
+termux-cli inject --package <包名> [--verbose]
+```
+
+- `--package <包名>`：必需，指定已安装的包名 (openclaw 或 openclaw-cn)
 - `--verbose`：可选，启用详细输出
 
 ### 2. build 命令
@@ -77,17 +90,23 @@ termux-cli install --package <包路径> [--verbose]
 ### 示例 1：注入代码到 OPENCLAW 项目
 
 ```bash
-termux-cli inject --project /path/to/openclaw-cn --target /path/to/openclaw-cn-termux --verbose
+termux-cli inject --code /path/to/openclaw-cn --target /path/to/openclaw-cn-termux --verbose
 ```
 
-### 示例 2：构建并发布项目
+### 示例 2：对已安装的包进行注入
 
 ```bash
-termux-cli build --project /path/to/openclaw-cn-termux --version 1.0.0 --verbose
+termux-cli inject --package openclaw-cn --verbose
+```
+
+### 示例 3：构建并发布项目
+
+```bash
+termux-cli build --project /path/to/openclaw-cn-termux --version 0.0.1 --verbose
 termux-cli publish --project /path/to/openclaw-cn-termux --tag latest --verbose
 ```
 
-### 示例 3：处理已安装的包
+### 示例 4：处理已安装的包
 
 ```bash
 termux-cli install --package /path/to/node_modules/openclaw-cn --verbose
@@ -98,15 +117,3 @@ termux-cli install --package /path/to/node_modules/openclaw-cn --verbose
 - **Node.js**：运行环境
 - **TypeScript**：开发语言
 - **Commander.js**：命令行工具
-- **fs-extra**：文件操作
-- **glob**：文件匹配
-- **inquirer**：交互式命令行
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 许可证
-
-ISC
-
