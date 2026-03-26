@@ -236,12 +236,12 @@ import type { RuntimeEnv } from "../runtime.js";`
   'extensions/discord/src/runtime.ts': {
     description: 'Discord 运行时调整',
     oldSegment: `import type { PluginRuntime } from "openclaw-cn/plugin-sdk";`,
-    newSegment: `import type { PluginRuntime } from "openclaw-termux/plugin-sdk";`
+    newSegment: `import type { PluginRuntime } from "openclaw-cn-termux/plugin-sdk";`
   },
 
   'extensions/discord/src/channel.ts': {
     description: 'Discord channel 调整',
     oldSegment: `from "openclaw-cn/plugin-sdk"`,
-    newSegment: `from "openclaw-termux/plugin-sdk"`
+    newSegment: `from "openclaw-cn-termux/plugin-sdk"`
   }
 };
