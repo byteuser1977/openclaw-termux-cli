@@ -11,50 +11,79 @@ const CORE_FILES = [
 ];
 
 export interface InjectOptions {
-  projectPath: string;
+  mode: 'code' | 'package';
+  projectPath?: string;
+  packageName?: string;
   targetPath?: string;
   verbose?: boolean;
 }
 
 export async function inject(options: InjectOptions): Promise<void> {
-  const { projectPath, targetPath = projectPath, verbose = false } = options;
+  const { mode, projectPath, packageName, targetPath, verbose = false } = options;
 
-  if (!fs.existsSync(projectPath)) {
-    throw new Error(`Project path ${projectPath} does not exist`);
-  }
+  if (mode === 'code') {
+    if (!projectPath) {
+      throw new Error('--code requires --project parameter');
+    }
 
-  console.log(`Injecting changes to ${targetPath}...`);
+    const targetDir = targetPath || projectPath;
+    const entryExists = fs.existsSync(path.join(targetDir, 'src/entry.js')) || fs.existsSync(path.join(targetDir, 'src/entry.ts'));
 
-  const projectFiles = glob.sync('**/*', { cwd: projectPath, nodir: true });
+    if (entryExists) {
+      console.log('Project appears to already be processed (src/entry.ts/js exists). Skipping injection.');
+      return;
+    }
+
+    if (!fs.existsSync(projectPath)) {
+      throw new Error(`Project path ${projectPath} does not exist`);
+    }
+
+    console.log(`Injecting changes to ${targetDir}...`);
+
+    const projectFiles = glob.sync('**/*', { cwd: projectPath, nodir: true });
 
   for (const file of projectFiles) {
     const filePath = path.join(projectPath, file);
-    const targetFilePath = path.join(targetPath, file);
+    const targetFilePath = path.join(targetDir, file);
     const normalizedFile = file.replace(/\\/g, '/');
+
+    if (fs.statSync(filePath).isDirectory()) continue;
 
     fs.ensureDirSync(path.dirname(targetFilePath));
 
     let content = fs.readFileSync(filePath, 'utf8');
     let modified = false;
-
-    if (CORE_FILES.includes(normalizedFile) && !filePath.endsWith('.org')) {
-      backupFile(filePath, content, normalizedFile, verbose);
-    } else if (CORE_MODIFICATIONS[normalizedFile] && !filePath.endsWith('.org') && normalizedFile.startsWith('extensions/')) {
-      backupFile(filePath, content, normalizedFile, verbose);
-    }
+    let needsBackup = false;
 
     if (normalizedFile === 'package.json' || normalizedFile.match(/^extensions\/[^/]+\/package\.json$/)) {
       const result = handlePackageModification(content, normalizedFile, verbose);
       content = result.content;
       modified = result.modified;
+      needsBackup = modified && !filePath.endsWith('.org');
+    } else if (normalizedFile.match(/^extensions\/[^/]+\/src\/.+\.ts$/)) {
+      const result = handleExtensionSrcModification(content, normalizedFile, verbose);
+      content = result.content;
+      modified = result.modified;
+      needsBackup = modified && !filePath.endsWith('.org');
+    } else if (normalizedFile.match(/^extensions\/[^/]+\/index\.ts$/)) {
+      const result = handleExtensionSrcModification(content, normalizedFile, verbose);
+      content = result.content;
+      modified = result.modified;
+      needsBackup = modified && !filePath.endsWith('.org');
     } else if (CORE_FILES.includes(normalizedFile)) {
       const result = handleCoreModification(content, normalizedFile, verbose);
       content = result.content;
       modified = result.modified;
+      needsBackup = modified && !filePath.endsWith('.org');
     } else if (CORE_MODIFICATIONS[normalizedFile]) {
       content = content.replace(CORE_MODIFICATIONS[normalizedFile].oldSegment, CORE_MODIFICATIONS[normalizedFile].newSegment);
       modified = true;
+      needsBackup = !filePath.endsWith('.org');
       if (verbose) console.log(`Modified ${normalizedFile}`);
+    }
+
+    if (needsBackup) {
+      backupFile(filePath, content, normalizedFile, verbose);
     }
 
     if (modified) {
@@ -65,8 +94,15 @@ export async function inject(options: InjectOptions): Promise<void> {
   }
 
   if (verbose) console.log('\n=== Injecting new files ===');
-  injectNewFiles(targetPath, verbose);
+  injectNewFiles(targetDir, verbose);
   if (verbose) console.log('\nInjection completed successfully!');
+  } else if (mode === 'package') {
+    if (!packageName) {
+      throw new Error('--package requires a package name parameter (openclaw or openclaw-cn)');
+    }
+    console.log(`Package injection mode for: ${packageName}`);
+    console.log('Package injection not yet implemented.');
+  }
 }
 
 function backupFile(filePath: string, content: string, normalizedFile: string, verbose: boolean): void {
@@ -122,6 +158,11 @@ function handlePackageModification(content: string, fileKey: string, verbose: bo
           hasModification = true;
         }
       }
+      if (deps[key] === 'workspace:openclaw-cn@*') {
+        deps[key] = 'workspace:openclaw-cn-termux@*';
+        hasModification = true;
+      }
+      
     }
   };
 
@@ -181,6 +222,27 @@ function findExistingModification(content: string, fileKey: string): boolean {
   const relatedMods = Object.entries(CORE_MODIFICATIONS).filter(([key]) => key.startsWith(fileBase));
 
   return relatedMods.some(([, mod]) => content.includes(mod.newSegment));
+}
+
+function handleExtensionSrcModification(content: string, fileKey: string, verbose: boolean): { content: string; modified: boolean } {
+  const sdkMod = CORE_MODIFICATIONS['EXTENSION_SDK_IMPORT'];
+  if (!sdkMod) {
+    return { content, modified: false };
+  }
+
+  let modified = content;
+  let hasModification = false;
+
+  while (modified.includes(sdkMod.oldSegment)) {
+    modified = modified.replace(sdkMod.oldSegment, sdkMod.newSegment);
+    hasModification = true;
+  }
+
+  if (hasModification && verbose) {
+    console.log(`Modified ${fileKey}`);
+  }
+
+  return { content: modified, modified: hasModification };
 }
 
 function injectNewFiles(targetPath: string, verbose: boolean): void {

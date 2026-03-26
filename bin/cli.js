@@ -12,18 +12,26 @@ program
 program
   .command('inject')
   .description('Inject changes to OPENCLAW project for Termux compatibility')
-  .option('-p, --project <path>', 'Project path')
+  .option('-c, --code <path>', 'Inject code to project directory')
+  .option('-p, --package <name>', 'Inject to installed package (openclaw or openclaw-cn)')
   .option('-t, --target <path>', 'Target path (default: project path)')
   .option('-v, --verbose', 'Verbose output')
   .action(async (options) => {
     try {
-      if (!options.project) {
-        console.error('Error: --project option is required');
+      if (!options.code && !options.package) {
+        console.error('Error: Either --code or --package option is required');
         process.exit(1);
       }
-      
+
+      if (options.code && options.package) {
+        console.error('Error: Cannot use both --code and --package at the same time');
+        process.exit(1);
+      }
+
       await inject({
-        projectPath: options.project,
+        mode: options.code ? 'code' : 'package',
+        projectPath: options.code,
+        packageName: options.package,
         targetPath: options.target,
         verbose: options.verbose
       });

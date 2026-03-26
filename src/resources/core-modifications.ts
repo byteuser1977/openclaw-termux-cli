@@ -250,10 +250,21 @@ import type { RuntimeEnv } from "../runtime.js";`
     newSegment: `from "openclaw-cn-termux/plugin-sdk"`
   },
 
-    'extensions/line/src/runtime.ts': {
+  'extensions/line/src/runtime.ts': {
     description: 'Line 运行时调整',
     oldSegment: `import type { PluginRuntime } from "openclaw-cn/plugin-sdk";`,
     newSegment: `import type { PluginRuntime } from "openclaw-cn-termux/plugin-sdk";`
   },
-  
+
+  'src/plugins/loader.ts': {
+    description: '插件加载器调整',
+    oldSegment: `"openclaw-cn/plugin-sdk": pluginSdkAlias`,
+    newSegment: `"openclaw-cn-termux/plugin-sdk": pluginSdkAlias`
+  },
+
+  'EXTENSION_SDK_IMPORT': {
+    description: '扩展 SDK 导入调整',
+    oldSegment: `from "openclaw-cn/plugin-sdk"`,
+    newSegment: `from "openclaw-cn-termux/plugin-sdk"`
+  }
 };
