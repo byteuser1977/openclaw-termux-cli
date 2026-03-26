@@ -207,5 +207,35 @@ import type { RuntimeEnv } from "../runtime.js";`
     oldSegment: `  if (process.platform === "linux" && !systemdAvailable && installDaemon) {`,
     newSegment: `  //  if (process.platform === "linux" && !systemdAvailable && installDaemon) {
   if (process.platform === "linux" && !isRunningInTermux() && !systemdAvailable && installDaemon) {`
+  },
+
+  'src/infra/clawdbot-root.ts': {
+    description: 'Clawdbot 根路径调整',
+    oldSegment: `const CORE_PACKAGE_NAMES = new Set(["openclaw-cn"]);`,
+    newSegment: `const CORE_PACKAGE_NAMES = new Set(["openclaw-cn-termuxcn-termux"]);`
+  },
+
+  'src/infra/path-env.ts': {
+    description: '路径环境调整',
+    oldSegment: `* Best-effort PATH bootstrap so skills that require the \`clawdbot-cn\` CLI can run`,
+    newSegment: `* Best-effort PATH bootstrap so skills that require the \`clawdbot-termux\` CLI can run`,
+  },
+
+  'src/acp/server.ts': {
+    description: 'ACP 服务器调整',
+    oldSegment: ` console.log(\`Usage: openclaw-cn acp [options]`,
+    newSegment: ` console.log(\`Usage: openclaw-termux acp [options]`
+  },
+
+  'src/cli/run-main.ts': {
+    description: 'CLI 主运行调整',
+    oldSegment: `console.error("[openclaw-cn] Uncaught exception:", formatUncaughtError(error));`,
+    newSegment: `console.error("[openclaw-termux] Uncaught exception:", formatUncaughtError(error));`
+  },
+
+  'extensions/discord/src/runtime.ts': {
+    description: 'Discord 运行时调整',
+    oldSegment: `import type { PluginRuntime } from "openclaw-cn/plugin-sdk";`,
+    newSegment: `import type { PluginRuntime } from "openclaw-cn-cn-termux/plugin-sdk";`
   }
 };

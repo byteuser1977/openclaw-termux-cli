@@ -1,3 +1,5 @@
+import { isRunningInProotDistro, isRunningInAidlux as checkAidlux, isRunningInTermux as checkRunningInTermux } from '../utils/proot';
+
 export function isTermux(): boolean {
   return process.env.TERMUX_VERSION !== undefined;
 }
@@ -6,8 +8,16 @@ export function isAidlux(): boolean {
   return process.env.AIDLUX_VERSION !== undefined;
 }
 
-export function isUbuntu(): boolean {
-  return process.platform === 'linux' && !isTermux() && !isAidlux();
+export function isRunningInProot(): boolean {
+  return isRunningInProotDistro();
+}
+
+export function isRunningInTermux(): boolean {
+  return checkRunningInTermux();
+}
+
+export function isRunningInAidlux(): boolean {
+  return checkAidlux();
 }
 
 export function getEnvironment(): string {
@@ -15,8 +25,6 @@ export function getEnvironment(): string {
     return 'termux';
   } else if (isAidlux()) {
     return 'aidlux';
-  } else if (isUbuntu()) {
-    return 'ubuntu';
   } else {
     return 'other';
   }
@@ -24,7 +32,7 @@ export function getEnvironment(): string {
 
 export function getEnvironmentSpecificConfig(): Record<string, any> {
   const env = getEnvironment();
-  
+
   switch (env) {
     case 'termux':
       return {
