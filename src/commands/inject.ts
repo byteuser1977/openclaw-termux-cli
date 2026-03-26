@@ -39,6 +39,8 @@ export async function inject(options: InjectOptions): Promise<void> {
 
     if (CORE_FILES.includes(normalizedFile) && !filePath.endsWith('.org')) {
       backupFile(filePath, content, normalizedFile, verbose);
+    } else if (CORE_MODIFICATIONS[normalizedFile] && !filePath.endsWith('.org') && normalizedFile.startsWith('extensions/')) {
+      backupFile(filePath, content, normalizedFile, verbose);
     }
 
     if (normalizedFile === 'package.json' || normalizedFile.match(/^extensions\/[^/]+\/package\.json$/)) {
@@ -50,7 +52,7 @@ export async function inject(options: InjectOptions): Promise<void> {
       content = result.content;
       modified = result.modified;
     } else if (CORE_MODIFICATIONS[normalizedFile]) {
-      content = CORE_MODIFICATIONS[normalizedFile].newSegment;
+      content = content.replace(CORE_MODIFICATIONS[normalizedFile].oldSegment, CORE_MODIFICATIONS[normalizedFile].newSegment);
       modified = true;
       if (verbose) console.log(`Modified ${normalizedFile}`);
     }
